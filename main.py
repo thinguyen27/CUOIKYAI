@@ -93,6 +93,7 @@ def start_game(level):
             show_win_game(screen)
 
     pygame.quit()
+    launch_level_selector()
 
 def show_main_menu():
     main_menu = tk.Tk()

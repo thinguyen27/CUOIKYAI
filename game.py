@@ -114,7 +114,7 @@ class Game:
 
         if self.canMove(next_x, next_y):
             self.next_move(y, x)
-        elif self.matrix[next_x][next_y] in ["$"]:
+        elif self.matrix[next_x][next_y] in ["$","*"]:
             self.move_crate(y, x)
 
         for i, j in dock:
