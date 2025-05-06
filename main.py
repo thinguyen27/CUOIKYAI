@@ -6,8 +6,10 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
+from solver import Solve, bfs, astar, backtracking, beam_search, belief_state_search
 
 clock = pygame.time.Clock()
+ismachineplaying = False
 def load_map(level):
     list_map = []
     path = f"levels\\{level}.txt"
@@ -85,6 +87,50 @@ def start_game(level):
                     gameSokoban.move(0, 1, list_dock)
                     if gameSokoban.player:
                         gameSokoban.player.set_direction("right")
+                elif event.key == pygame.K_1:
+                    solution = bfs(Solve(matrix))
+                    ismachineplaying = True
+                elif event.key == pygame.K_2:
+                    solution = backtracking(Solve(matrix))
+                    ismachineplaying = True
+                elif event.key == pygame.K_3:
+                    solution = astar(Solve(matrix))
+                    ismachineplaying = True
+                elif event.key == pygame.K_4:
+                    solution = beam_search(Solve(matrix))
+                    ismachineplaying = True
+                elif event.key == pygame.K_5:
+                    solution = belief_state_search(Solve(matrix))
+                    ismachineplaying = True
+
+                if (ismachineplaying == True):
+                    for i in range (len(solution)):
+                        gameSokoban.fill_screen_with_ground(size, screen)
+                        gameSokoban.print_game(screen)
+                        gameSokoban.update_player_position()
+                        pygame.display.flip()
+                        if(solution[i] == "L"):
+                            gameSokoban.move(0, -1, list_dock)
+                            if gameSokoban.player:
+                                gameSokoban.player.set_direction("left")
+                            time.sleep(0.1)
+                        elif(solution[i] == "R"):
+                            gameSokoban.move(0, 1, list_dock)
+                            if gameSokoban.player:
+                                gameSokoban.player.set_direction("right")
+                            time.sleep(0.1)
+                        elif(solution[i] == "U"):
+                            gameSokoban.move(-1, 0, list_dock)
+                            if gameSokoban.player:
+                                gameSokoban.player.set_direction("up")
+                            time.sleep(0.1)
+                        elif(solution[i] == "D"):
+                            gameSokoban.move(1, 0, list_dock)
+                            if gameSokoban.player:
+                                gameSokoban.player.set_direction("down")
+                            time.sleep(0.1)
+                    ismachineplaying = True
+
             if event.type == pygame.QUIT:
                     running = False
                     
