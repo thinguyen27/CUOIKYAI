@@ -355,7 +355,7 @@ def bfs(game):
 
             if newState.isComplete():
                 end = time.time()
-                print("Time to find solution:", round(end - start, 2), "seconds")
+                print("Time to find solution:", round(end - start, 10), "seconds")
                 print("Solution:", newState.pathSolution)
                 return newState.pathSolution
 
@@ -407,7 +407,7 @@ def astar(game):
 
             if new_state.isComplete():
                 end = time.time()
-                print("Time to find solution:", round(end - start, 2), "seconds")
+                print("Time to find solution:", round(end - start, 10), "seconds")
                 print("Solution:", new_state.pathSolution)
                 return new_state.pathSolution
 
@@ -474,7 +474,7 @@ def backtracking(game):
     end = time.time()
 
     if solution:
-        print("Time to find solution:", round(end - start, 2), "seconds")
+        print("Time to find solution:", round(end - start, 10), "seconds")
         print("Solution:", solution)
         return solution
     else:
@@ -503,7 +503,7 @@ def simulated_annealing(game, initial_temperature=1000, cooling_rate=0.95, max_i
         # Kiểm tra nếu đã hoàn thành
         if current_state.isComplete():
             end = time.time()
-            print("Time to find solution:", round(end - start, 2), "seconds")
+            print("Time to find solution:", round(end - start, 10), "seconds")
             print("Number of visited nodes:", node_generated)
             print("Solution:", best_path, "Number steps:", len(best_path))
             return best_path
@@ -583,7 +583,7 @@ def belief_state_search(game):
 
                 if new_state.isComplete():
                     end = time.time()
-                    print("Time to find solution:", round(end - start, 2), "seconds")
+                    print("Time to find solution:", round(end - start, 10), "seconds")
                     print("Solution:", new_state.pathSolution)
                     return new_state.pathSolution
 

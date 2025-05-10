@@ -155,6 +155,7 @@ def start_game(level):
                     solution = q_learning_solver.solve()
 
                 if solution != 'NoSol':
+                    print(len(solution))
                     for i in range(len(solution)):
                         gameSokoban.fill_screen_with_ground(size, screen)
                         gameSokoban.print_game(screen)
