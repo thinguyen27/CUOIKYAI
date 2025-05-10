@@ -386,7 +386,7 @@ def simulated_annealing(game, initial_temperature=1000, cooling_rate=0.95, max_i
         elif step == 'R':
             next_state.move(0, 1)
 
-        # Tính heuristic của trạng thái tiếp theo
+        # Tính toán heuristic của trạng thái tiếp theo
         next_heuristic = player_toBox(next_state) + box_toDock(next_state)
 
         # Tính toán xác suất chọn trạng thái kém hơn
@@ -403,7 +403,6 @@ def simulated_annealing(game, initial_temperature=1000, cooling_rate=0.95, max_i
     return "NoSol"
 
 
-
 # Belief State Search
 def belief_state_search(game):
     start = time.time()
@@ -416,8 +415,9 @@ def belief_state_search(game):
         return "NoSol"
 
     # Giả thuyết về các trạng thái có thể có trong Belief State Search
-    # Trong bài toán này, có thể tạo ra nhiều bản sao của game với các giả thuyết khác nhau
     belief_states = [start_state]
+
+    print("Processing Belief State Search......")
 
     while belief_states:
         current_level = []
@@ -427,6 +427,7 @@ def belief_state_search(game):
                 new_state = copy.deepcopy(state)
                 node_generated += 1
 
+                # Thực hiện bước đi
                 if step == 'U':
                     new_state.move(-1, 0)
                 elif step == 'D':
@@ -444,10 +445,10 @@ def belief_state_search(game):
                     print("Solution:", new_state.pathSolution)
                     return new_state.pathSolution
 
+                # Thêm trạng thái mới vào danh sách belief states
                 current_level.append(new_state)
 
-        # Tạo các belief states mới từ các trạng thái hiện tại (có thể thêm các giả thuyết hoặc lựa chọn khác)
-        belief_states = current_level
+        belief_states = current_level  # Cập nhật lại belief states
 
     print("No Solution!")
     return "NoSol"
