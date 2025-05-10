@@ -24,11 +24,55 @@ def load_map(level):
     return list_map
 
 def show_win_game(screen):
-    font = pygame.font.SysFont("Minecraft", 36)
-    win_text = font.render("You Win!", True, (0, 255, 0))
-    text_rect = win_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+    font = pygame.font.SysFont("Minecraft", 48)
+    
+    # Tạo văn bản chiến thắng
+    win_text = font.render("You Win!", True, (255, 255, 0))  # Sử dụng màu vàng
+    text_rect = win_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 3))
+    
+    # Vẽ nền mờ cho màn hình chiến thắng
+    overlay = pygame.Surface((screen.get_width(), screen.get_height()))  # Tạo bề mặt phủ lên màn hình
+    overlay.set_alpha(128)  # Đặt độ trong suốt
+    overlay.fill((0, 0, 0))  # Màu nền mờ (đen)
+
+    # Tạo hiệu ứng nhấp nháy cho văn bản
+    time_to_show = 0.5  # Hiển thị văn bản trong 0.5 giây
+    show_time = time.time()
+    
+    # Vẽ nền mờ lên màn hình
+    screen.blit(overlay, (0, 0))
+    
+    # Hiển thị văn bản chiến thắng
     screen.blit(win_text, text_rect)
+    
+    # Tạo nút "Quay lại chọn cấp độ"
+    font_small = pygame.font.SysFont("Minecraft", 24)
+    back_text = font_small.render("Back to Level Selector", True, (255, 255, 255))
+    back_button_rect = back_text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 + 100))
+    
+    # Vẽ nút "Back to Level Selector"
+    screen.blit(back_text, back_button_rect)
+    
     pygame.display.flip()
+
+    # Chờ người chơi nhấn nút
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if back_button_rect.collidepoint(event.pos):
+                    waiting_for_input = False  # Dừng vòng lặp và quay lại menu chọn cấp độ
+                    pygame.quit()
+                    launch_level_selector()  # Quay lại màn hình chọn cấp độ
+                    return
+
+    # Đợi một thời gian ngắn để hiển thị văn bản (nếu cần)
+    while time.time() - show_time < time_to_show:
+        pass
+
 
 def start_game(level):
     select_level = level.lower().replace(" ", "")
@@ -54,8 +98,11 @@ def start_game(level):
     running = True
     list_dock = gameSokoban.listDock()
 
-    while running:
+    # Thêm biến để theo dõi thời gian và điều kiện thắng
+    game_completed = False
+    win_start_time = None  # Biến để lưu thời gian khi game hoàn thành
 
+    while running:
         gameSokoban.fill_screen_with_ground(size, screen)
         gameSokoban.print_game(screen)
         gameSokoban.update_player_position()
@@ -99,7 +146,7 @@ def start_game(level):
                     solution = belief_state_search(Solve(matrix))
 
                 if solution != 'NoSol':
-                    for i in range (len(solution)):
+                    for i in range(len(solution)):
                         gameSokoban.fill_screen_with_ground(size, screen)
                         gameSokoban.print_game(screen)
                         gameSokoban.update_player_position()
@@ -124,17 +171,23 @@ def start_game(level):
                             if gameSokoban.player:
                                 gameSokoban.player.set_direction("down")
                             time.sleep(0.1)
-                    ismachineplaying = True
 
             if event.type == pygame.QUIT:
                     running = False
-                    
 
+        # Kiểm tra nếu trò chơi đã hoàn thành
         if gameSokoban.is_completed(list_dock):
-            show_win_game(screen)
+            if not game_completed:  # Nếu game chưa hoàn thành
+                win_start_time = pygame.time.get_ticks()  # Ghi lại thời gian khi game hoàn thành
+                game_completed = True  # Đánh dấu game đã hoàn thành
+
+        # Nếu game đã hoàn thành và 2 giây đã trôi qua, hiển thị màn hình chiến thắng
+        if game_completed and pygame.time.get_ticks() - win_start_time >= 100:
+            show_win_game(screen)  # Hiển thị màn hình chiến thắng
 
     pygame.quit()
     launch_level_selector()
+
 
 def show_main_menu():
     main_menu = tk.Tk()
