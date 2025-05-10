@@ -4,6 +4,148 @@ import queue
 from collections import deque
 import math
 import random
+import numpy as np
+import pygame
+
+class QLearningAgent:
+    def __init__(self, state_space, action_space, alpha=0.1, gamma=0.9, epsilon=0.1):
+        self.alpha = alpha  # Tỷ lệ học
+        self.gamma = gamma  # Hệ số chiết khấu
+        self.epsilon = epsilon  # Tỷ lệ khám phá (exploration)
+
+        self.state_space = state_space  # Không gian trạng thái
+        self.action_space = action_space  # Không gian hành động
+
+        # Khởi tạo bảng Q với giá trị 0 cho mỗi trạng thái-hành động
+        self.q_table = np.zeros((state_space, action_space))
+
+    def encode_state(self, state):
+        """
+        Mã hóa trạng thái (ma trận trò chơi) thành một số nguyên duy nhất.
+        Giả sử state là ma trận 2D chứa các ký tự như '#', '@', '$', '.', v.v.
+        """
+        state_flat = []
+        
+        for row in state:
+            for char in row:
+                # Mã hóa các ký tự thành các giá trị số tương ứng
+                if char == '#':  # Tường
+                    state_flat.append(1)
+                elif char == '@':  # Người chơi
+                    state_flat.append(2)
+                elif char == '$':  # Thùng
+                    state_flat.append(3)
+                elif char == '.':  # Dock
+                    state_flat.append(4)
+                elif char == '*':  # Thùng ở Dock
+                    state_flat.append(5)
+                else:  # Không gian trống
+                    state_flat.append(0)
+
+        # Chuyển đổi state thành mảng 1D
+        state_array = np.array(state_flat)
+        
+        # Mã hóa trạng thái thành một số nguyên (hash) duy nhất và sử dụng modulo để giới hạn chỉ số
+        state_hash = hash(tuple(state_array)) % self.state_space  # Giới hạn chỉ số vào phạm vi của bảng Q
+        return state_hash
+
+    def choose_action(self, state):
+        # Mã hóa trạng thái trước khi lấy hành động
+        state_hash = self.encode_state(state)
+        
+        # Kiểm tra xem trạng thái đã tồn tại trong bảng Q chưa
+        if state_hash < len(self.q_table):
+            if random.uniform(0, 1) < self.epsilon:
+                return random.choice(range(self.action_space))  # Chọn hành động ngẫu nhiên
+            else:
+                return np.argmax(self.q_table[state_hash])  # Chọn hành động có giá trị Q cao nhất
+        else:
+            return random.choice(range(self.action_space))  # Nếu chưa có trạng thái trong bảng, chọn ngẫu nhiên
+
+    def update_q_value(self, state, action, reward, next_state):
+        # Mã hóa trạng thái
+        state_hash = self.encode_state(state)
+        next_state_hash = self.encode_state(next_state)
+
+        # Cập nhật giá trị Q
+        best_next_action = np.argmax(self.q_table[next_state_hash])  # Tìm hành động tốt nhất từ trạng thái tiếp theo
+        self.q_table[state_hash, action] += self.alpha * (reward + self.gamma * self.q_table[next_state_hash, best_next_action] - self.q_table[state_hash, action])
+
+# Thêm vào trong lớp Solve hoặc như một phần của QLearningSolver
+class QLearningSolver:
+    def __init__(self, game, alpha=0.1, gamma=0.9, epsilon=0.1):
+        self.game = game  # Trò chơi Sokoban
+        self.alpha = alpha  # Tỷ lệ học
+        self.gamma = gamma  # Hệ số chiết khấu
+        self.epsilon = epsilon  # Tỷ lệ khám phá (exploration)
+        
+        # Tạo tác nhân Q-learning
+        self.agent = QLearningAgent(state_space=1000, action_space=4)  # Điều chỉnh state_space và action_space phù hợp
+
+    def train(self, screen):
+        """
+        Phương thức huấn luyện Q-learning liên tục cho đến khi người dùng dừng (nhấn F1).
+        """
+        episode = 0
+        running = True
+        while running:  # Vòng lặp huấn luyện vô hạn
+            episode += 1
+            state = self.game.reset()  # Khởi tạo trạng thái ban đầu
+            done = False
+            total_reward = 0
+
+            while not done:
+                # Mã hóa trạng thái thành chỉ số duy nhất
+                state_hash = self.agent.encode_state(state)  # Mã hóa trạng thái thành số nguyên
+                
+                # Chọn hành động từ bảng Q (epsilon-greedy)
+                action = self.agent.choose_action(state)  # Lựa chọn hành động
+                
+                # Thực hiện hành động và nhận trạng thái tiếp theo
+                next_state, reward, done = self.game.step(action)
+                
+                # Cập nhật giá trị Q
+                self.agent.update_q_value(state, action, reward, next_state)
+                
+                # Cập nhật trạng thái hiện tại và tính tổng phần thưởng
+                state = next_state
+                total_reward += reward
+
+            print(f"Episode {episode}, Total Reward: {total_reward}")
+
+            # Kiểm tra sự kiện bàn phím (F1 để dừng)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_F1:  # Nhấn F1 để dừng huấn luyện
+                        print("Training stopped by user (F1 pressed).")
+                        running = False
+    def solve(self):
+        state = self.game.reset()  # Khởi tạo trạng thái ban đầu
+        done = False
+        path = []
+        max_steps = 1000  # Giới hạn số bước tối đa trong mỗi vòng
+
+        while not done and max_steps > 0:
+            # Mã hóa trạng thái thành chỉ số duy nhất
+            state_hash = self.agent.encode_state(state)  # Mã hóa trạng thái thành số nguyên
+            
+            # Lựa chọn hành động tốt nhất từ bảng Q
+            action = np.argmax(self.agent.q_table[state_hash])  # Tìm hành động có giá trị Q cao nhất
+            
+            # Thực hiện hành động và nhận trạng thái tiếp theo
+            next_state, reward, done = self.game.step(action)
+            path.append(action)
+            state = next_state  # Cập nhật trạng thái hiện tại
+
+            max_steps -= 1  # Giảm số bước còn lại
+
+        return path
+
+
+
+
 
 class Solve:
     def __init__(self, matrix):

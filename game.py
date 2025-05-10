@@ -5,6 +5,20 @@ from load_object.ground import Ground
 from load_object.wall import Wall
 from load_object.player import Player
 import copy
+import os
+
+def load_map(level):
+    list_map = []
+    path = f"levels\\{level}.txt"
+    if not os.path.exists(path):
+        print(f"Thư mục {path} không tồn tại.")
+        return
+    else:
+        with open(path, "r") as file:
+            for line in file:
+                row = [char for char in line.rstrip('\n')]
+                list_map.append(row)
+    return list_map
 
 class Game:
     def __init__(self, matrix, stack_matrix):
@@ -136,3 +150,32 @@ class Game:
                     if self.is_deadlock(i, j):
                         return True
         return False
+    
+    def reset(self):
+        # Đặt lại ma trận và trạng thái của trò chơi về trạng thái ban đầu.
+        self.matrix = load_map("level1")  # Hoặc cấp độ bạn muốn bắt đầu lại.
+        self.stack_matrix = []
+        return self.matrix
+    
+    def step(self, action):
+                # Chuyển hành động (action) thành di chuyển
+        if action == 0:  # Di chuyển lên
+            self.move(-1, 0, self.listDock())
+        elif action == 1:  # Di chuyển xuống
+            self.move(1, 0, self.listDock())
+        elif action == 2:  # Di chuyển trái
+            self.move(0, -1, self.listDock())
+        elif action == 3:  # Di chuyển phải
+            self.move(0, 1, self.listDock())
+
+        # Tính phần thưởng (reward)
+        reward = 0
+        if self.is_completed(self.listDock()):  # Nếu trò chơi hoàn thành
+            reward = 1  # Phần thưởng dương khi hoàn thành
+            done = True  # Trạng thái kết thúc
+        else:
+            reward = -0.1  # Phần thưởng âm nhỏ cho mỗi bước di chuyển
+            done = False  # Trò chơi chưa hoàn thành
+
+        # Trả về trạng thái tiếp theo (ma trận), phần thưởng và trạng thái kết thúc
+        return self.matrix, reward, done

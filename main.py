@@ -6,7 +6,8 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
-from solver import Solve, bfs, astar, backtracking, simulated_annealing, belief_state_search
+from solver import Solve, bfs, astar, backtracking, simulated_annealing, belief_state_search,QLearningSolver
+import numpy as np
 
 clock = pygame.time.Clock()
 
@@ -102,6 +103,11 @@ def start_game(level):
     game_completed = False
     win_start_time = None  # Biến để lưu thời gian khi game hoàn thành
 
+    q_learning_solver = QLearningSolver(gameSokoban)
+
+    # Tải bảng Q đã huấn luyện
+    q_table = np.load("q_table.npy")  # Tải bảng Q từ file đã lưu
+    q_learning_solver.agent.q_table = q_table  # Cập nhật bảng Q trong QLearningSolver
     while running:
         gameSokoban.fill_screen_with_ground(size, screen)
         gameSokoban.print_game(screen)
@@ -144,6 +150,9 @@ def start_game(level):
                     solution = simulated_annealing(Solve(matrix))
                 elif event.key == pygame.K_5:
                     solution = belief_state_search(Solve(matrix))
+                elif event.key == pygame.K_6:
+                    print("Solving with Q-learning...")
+                    solution = q_learning_solver.solve()
 
                 if solution != 'NoSol':
                     for i in range(len(solution)):
