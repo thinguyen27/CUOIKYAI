@@ -11,10 +11,25 @@ Trò chơi Sokoban là một trò chơi trí tuệ với các cấp độ khác 
 
 ## Các Thuật Toán Được Sử Dụng
 - **BFS (Breadth-First Search)**: Thuật toán tìm kiếm theo chiều rộng, đảm bảo tìm được giải pháp với số bước ít nhất trong không gian trạng thái không có trọng số.
+
+  ![BFS mp4](https://github.com/user-attachments/assets/7deeacce-46b1-468e-88be-9ff853fa8a6c)
+
 - **A***: Thuật toán tìm kiếm có trọng số, sử dụng hàm heuristic để ưu tiên các trạng thái có chi phí ước tính thấp nhất.
+
+ ![A_Star mp4](https://github.com/user-attachments/assets/ce729fbf-978d-4800-88be-08381fd53c55)
+
 - **Backtracking**: Phương pháp tìm kiếm đệ quy, thử từng lựa chọn và quay lại nếu gặp bế tắc.
+
+ ![Backtracking mp4](https://github.com/user-attachments/assets/b29af4ab-7a17-423e-aa3b-a81767d4228b)
+
 - **Simulated Annealing**: Thuật toán tối ưu hóa mô phỏng quá trình làm nguội vật liệu, cho phép thoát khỏi các cực trị cục bộ để tìm giải pháp tối ưu.
+
+ ![SA mp4](https://github.com/user-attachments/assets/9ca1ffc0-19ad-4d63-bb08-06e33eba205a)
+
 - **Belief State Search**: Thuật toán tìm kiếm trong không gian trạng thái không chắc chắn, giúp tìm kiếm giải pháp khi không thể xác định chính xác trạng thái môi trường.
+
+ ![Belief State  mp4 (1)](https://github.com/user-attachments/assets/369ee492-3b50-474e-8092-6ebe3b376f9e)
+
 - **Q-Learning**: Thuật toán học củng cố không giám sát, giúp tác nhân học cách tối ưu hóa hành động qua các phần thưởng và huấn luyện từ môi trường.
 
 ## Công Cụ và Thư Viện
